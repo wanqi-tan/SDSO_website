@@ -1,25 +1,43 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
-import { motion } from "framer-motion"
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+import { motion } from "framer-motion";
 
 interface AnimatedDarkSectionProps {
-  children: ReactNode
-  className?: string
-  py?: string
+  children: ReactNode;
+  className?: string;
+  py?: string;
 }
 
-export default function AnimatedDarkSection({ children, className = "", py = "py-24" }: AnimatedDarkSectionProps) {
+export default function AnimatedDarkSection({
+  children,
+  className = "",
+  py = "py-24",
+}: AnimatedDarkSectionProps) {
+  // UseMemo to generate random particle data only once on the client
+  const particles = useMemo(() => {
+    return Array.from({ length: 30 }, () => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      width: `${Math.random() * 4 + 2}px`,
+      height: `${Math.random() * 4 + 2}px`,
+      y: [0, -Math.random() * 150 - 50],
+      x: [0, (Math.random() - 0.5) * 80],
+      opacity: [0, 0.8, 0],
+      duration: Math.random() * 8 + 6,
+      delay: Math.random() * 5,
+    }));
+  }, []);
+
   return (
     <section className={`relative ${py} overflow-hidden ${className}`}>
-      {/* Enhanced animated background */}
       <div className="absolute inset-0 -z-10">
-        {/* Base dark gradient */}
+        {/* Background gradient layers */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#121218] via-[#1a1a24] to-[#121218]"></div>
 
-        {/* Animated gradient overlay with more pronounced movement */}
         <motion.div
-          className="absolute inset-0 opacity-40" // Increased opacity
+          className="absolute inset-0 opacity-40"
           animate={{
             background: [
               "radial-gradient(circle at 20% 30%, rgba(70, 70, 100, 0.5) 0%, transparent 60%)",
@@ -29,13 +47,12 @@ export default function AnimatedDarkSection({ children, className = "", py = "py
             ],
           }}
           transition={{
-            duration: 15, // Faster animation
+            duration: 15,
             repeat: Number.POSITIVE_INFINITY,
             ease: "linear",
           }}
         />
 
-        {/* Second animated gradient for more depth */}
         <motion.div
           className="absolute inset-0 opacity-30"
           animate={{
@@ -53,14 +70,14 @@ export default function AnimatedDarkSection({ children, className = "", py = "py
           }}
         />
 
-        {/* Animated dots pattern with more contrast */}
+        {/* Dots pattern */}
         <motion.div
           className="absolute inset-0"
           initial={{ opacity: 0.4 }}
           animate={{
-            opacity: [0.4, 0.7, 0.4], // More pronounced opacity change
+            opacity: [0.4, 0.7, 0.4],
             transition: {
-              duration: 6, // Faster animation
+              duration: 6,
               repeat: Number.POSITIVE_INFINITY,
               repeatType: "reverse",
             },
@@ -69,38 +86,33 @@ export default function AnimatedDarkSection({ children, className = "", py = "py
           <div className="absolute inset-0 bg-[radial-gradient(rgba(160,160,220,0.2)_1.5px,transparent_1.5px)] bg-[length:20px_20px]"></div>
         </motion.div>
 
-        {/* Enhanced floating particles */}
+        {/* Floating particles */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(30)].map(
-            (
-              _,
-              i, // More particles
-            ) => (
-              <motion.div
-                key={i}
-                className="absolute rounded-full bg-white/30" // Brighter particles
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${Math.random() * 4 + 2}px`, // Larger particles
-                  height: `${Math.random() * 4 + 2}px`,
-                }}
-                animate={{
-                  y: [0, -Math.random() * 150 - 50], // Longer travel distance
-                  x: [0, (Math.random() - 0.5) * 80], // More horizontal movement
-                  opacity: [0, 0.8, 0], // Higher peak opacity
-                }}
-                transition={{
-                  duration: Math.random() * 8 + 6, // Faster animation
-                  repeat: Number.POSITIVE_INFINITY,
-                  delay: Math.random() * 5,
-                }}
-              />
-            ),
-          )}
+          {particles.map((p, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-white/30"
+              style={{
+                left: p.left,
+                top: p.top,
+                width: p.width,
+                height: p.height,
+              }}
+              animate={{
+                y: p.y,
+                x: p.x,
+                opacity: p.opacity,
+              }}
+              transition={{
+                duration: p.duration,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: p.delay,
+              }}
+            />
+          ))}
         </div>
 
-        {/* Animated light beams */}
+        {/* Light beams */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(3)].map((_, i) => (
             <motion.div
@@ -125,8 +137,8 @@ export default function AnimatedDarkSection({ children, className = "", py = "py
         </div>
       </div>
 
-      {/* Content wrapper with improved text contrast */}
+      {/* Foreground content */}
       <div className="relative z-10 text-white">{children}</div>
     </section>
-  )
+  );
 }
